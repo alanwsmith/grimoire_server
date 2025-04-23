@@ -1,4 +1,4 @@
-const captureState = {}
+let captureState = {}
 const textInputs = ['url', 'title', 'tags']
 const textAreas = ['notes']
 let popEl;
@@ -24,19 +24,18 @@ function addStylesheet() {
   document.head.appendChild(sheet)
 }
 
-
 function updateStorage() {
-  console.log('update storage')
-//   const url = window.location
-//   const stateToStore = {}
-//   items.forEach(key => {
-//     const el = document.querySelector(`#pop-${key}`)
-//     if (el.nodeName === 'TEXTAREA') {
-//       stateToStore[key] = el.innerHTML
-//     } else {
-//       stateToStore[key] = el.value
-//     }
-//   })
+  const url = window.location
+  const stateToStore = {}
+  textInputs.forEach(key => {
+    const el = document.querySelector(`#pop-${key}`)
+    stateToStore[key] = el.value
+  })
+  textAreas.forEach(key => {
+    const el = document.querySelector(`#pop-${key}`)
+    stateToStore[key] = el.innerHTML
+  })
+  localStorage.setItem(url, JSON.stringify(stateToStore))
 }
 
 function getValues() {
@@ -48,8 +47,11 @@ function getValues() {
     captureState['tags'] = '';
     captureState['notes'] = getSelection();
   } else {
-    captureState = storedState
+    captureState = JSON.parse(storedState)
   }
+}
+
+function populateValues() {
   textInputs.forEach(key => {
     const el = document.querySelector(`#pop-${key}`)
     el.value = captureState[key]
@@ -59,7 +61,6 @@ function getValues() {
     el.innerHTML = captureState[key]
   })
 }
-
 
 
 // const inputs = document.querySelectorAll('.grimoirePopover input')
@@ -78,10 +79,14 @@ function addHandlers() {
     const isOpen = popEl.matches(':popover-open')
     if (event.key === "1" && isOpen === false) {
       getValues()
+      populateValues()
       popEl.showPopover()
     }
   })
-
+  textInputs.forEach(input => {
+    const inputEl = document.querySelector(`#pop-${input}`)
+    inputEl.addEventListener('input', updateStorage)
+  })
 }
 
 function addPopover() {
