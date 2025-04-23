@@ -31,7 +31,6 @@ function addStylesheet() {
   document.head.appendChild(sheet)
 }
 
-
 function getValues() {
   const url = window.location
   const storedState = localStorage.getItem(url)
@@ -45,6 +44,14 @@ function getValues() {
   }
 }
 
+function getSelection() {
+  const selection = document.getSelection();
+  const selectedText = selection.toString();
+  return selectedText
+  //const notesEl = document.querySelector('#captureNotes');
+  // notesEl.innerText = selectedText;
+}
+
 function populateValues() {
   textInputs.forEach(key => {
     const el = document.querySelector(`#pop-${key}`)
@@ -55,17 +62,6 @@ function populateValues() {
     el.value = captureState[key]
   })
 }
-
-
-// const inputs = document.querySelectorAll('.grimoirePopover input')
-// console.log(inputs)
-// inputs.forEach(input => {
-//   console.log(input)
-// })
-
-// function getSelection() {
-//   return "TODO: get the selection"
-// }
 
 function updateStorage() {
   console.log(".")
@@ -118,7 +114,6 @@ function addHandlers() {
     }
   )
 }
-
 
 function addPopover() {
   popEl = document.createElement('div')
