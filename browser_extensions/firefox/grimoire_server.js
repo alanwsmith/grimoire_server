@@ -113,11 +113,8 @@ function addHandlers() {
     'submit', 
     (event) => {
       event.preventDefault();
-      console.log("asdf");
-      setTimeout(() => {
-        console.log("werwre");
-        formEl.submit();
-      }, 2000);
+      localStorage.removeItem(window.location);
+      formEl.submit();
     }
   )
 }
