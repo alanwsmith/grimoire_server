@@ -1,0 +1,4 @@
+#!/bin/bash
+
+cd ../browser_extensions/firefox/
+web-ext -u https://developer.mozilla.org/ run
