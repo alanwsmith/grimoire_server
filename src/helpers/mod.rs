@@ -53,6 +53,10 @@ pub fn get_date() -> Option<String> {
     Some(now.to_rfc3339_opts(chrono::SecondsFormat::Secs, true))
 }
 
+pub fn get_output_root() -> PathBuf {
+    PathBuf::from("/Users/alan/GrimoireV2-Dev")
+}
+
 pub fn write_file_with_mkdir(path: &PathBuf, content: &str) -> Result<(), String> {
     match path.parent() {
         Some(parent_dir) => match fs::create_dir_all(parent_dir) {

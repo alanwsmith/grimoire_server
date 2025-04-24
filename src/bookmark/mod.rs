@@ -28,14 +28,15 @@ pub struct Bookmark {
 pub async fn make_bookmark(
     extract::Json(mut payload): extract::Json<Bookmark>,
 ) -> response::Json<FileResponse> {
-    dbg!(&payload);
     payload.id = generate_id();
     payload.date = get_date();
     payload.template = Some(include_str!("template.neoj").to_string());
     let enum_payload = FileType::Bookmark(payload.clone());
     let output = generate_output(&enum_payload);
     if let Ok(text) = output {
-        dbg!(text);
+        let output_path =
+            get_output_root().join(format!("{}/source.neo", payload.id.as_ref().unwrap()));
+        write_file_with_mkdir(&output_path, &text);
     }
     let response = FileResponse {
         id: payload.id,
