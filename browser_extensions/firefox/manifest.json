@@ -3,7 +3,7 @@
   "name": "Grimoire Connection",
   "version": "1.0",
   "description": "Connects to my personal book of magic",
-  "permissions": ["activeTab"],
+  "permissions": ["activeTab", "http://localhost/"],
   "content_scripts": [
     {
       "matches": ["*://*/*"],
