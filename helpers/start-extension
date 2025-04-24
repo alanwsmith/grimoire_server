@@ -1,4 +1,4 @@
 #!/bin/bash
 
 cd ../browser_extensions/firefox/
-web-ext -u https://developer.mozilla.org/ run
+web-ext --devtools -u "http://localhost:1989/" run
