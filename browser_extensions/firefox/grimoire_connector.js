@@ -100,6 +100,10 @@ function clearStorage() {
   localStorage.removeItem(url);
 }
 
+function closePopover() {
+  popEl.hidePopover()
+}
+
 function getDescription() {
   const description = document.querySelector('meta[name="description"]').content;
   if (description !== null) {
@@ -183,6 +187,7 @@ async function sendData() {
     });
     const result = await response.json();
     clearStorage();
+    closePopover();
   } catch (e) {
     showError(e);
   }
