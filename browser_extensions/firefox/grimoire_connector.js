@@ -1,6 +1,9 @@
 let state = {};
 let popEl;
 let url;
+let apiRoot = "http://localhost:4545/api";
+// TODO: Use tabs to make different kinds.
+let kind = "bookmark";
 
 function addHandlers() {
   window.addEventListener('keyup', (event) => {
@@ -10,7 +13,7 @@ function addHandlers() {
       popEl.showPopover()
     }
   });
-  const inputEls = document.querySelectorAll(`input[type=text]`);
+  const inputEls = document.querySelectorAll(`input`);
   inputEls.forEach(inputEl => {
     inputEl.addEventListener('input', updateStorage)
     inputEl.addEventListener('keydown', (event) => {
@@ -43,11 +46,13 @@ function addPopover() {
     <label for="bookmark-title">Title</label>
     <input id="bookmark-title" data-kind="bookmark" type="text" />
     <label for="bookmark-url">URL</label>
-    <input id="bookmark-url" data-kind="bookmark" type="text" />
+    <input id="bookmark-url" data-kind="bookmark" type="text" disabled/>
     <label for="bookmark-notes">Notes</label>
     <textarea id="bookmark-notes" data-kind="bookmark"></textarea>
     <label for="bookmark-tags">Tags</label>
     <input id="bookmark-tags" data-kind="bookmark" type="text" value="" />
+    <label for="password">Password</label>
+    <input id="password" type="password" />
     <div></div>
     <button id="submit-button">Submit</button>
   </div>`;
@@ -67,9 +72,12 @@ function addStylesheet() {
     }
     & #inputs {
       display: grid;
-      grid-template-columns: 4rem 1fr;
+      grid-template-columns: 6rem 1fr;
     }
     & input[type=text] {
+      width: min(70ch, 100% - 5rem);
+    }
+    & input[type=password] {
       width: min(70ch, 100% - 5rem);
     }
     & #submit-button {
@@ -125,6 +133,11 @@ function getValues() {
     const fieldEl = document.querySelector(`#${id}`);
     fieldEl.value = state[id];
   }
+  const password = localStorage.getItem('password');
+  if (password !== null) {
+    document.querySelector(`#password`).value = password;
+  }
+
 }
 
 function showError(err) {
@@ -138,18 +151,25 @@ function showError(err) {
 }
 
 async function sendData() {
-  const postToUrl = "http://localhost:4545/api/make-note";
-  const bodyData = JSON.stringify(state);
-  console.log(bodyData);
+  const postUrl = `${apiRoot}/make-${kind}`;
+  const payload = {
+    "password": document.querySelector(`#password`).value
+  };
+  const fields = document.querySelectorAll(`[data-kind=${kind}]`)
+  fields.forEach(field => {
+    const key = field.id.split('-')[1];
+    payload[key] = field.value;
+  });
+  console.log(payload);
   try {
     const response = await fetch(
-      postToUrl, {
+      postUrl, {
       method: "POST",
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json'
       },
-      body: bodyData,
+      body: payload,
     });
     const result = await response.json();
     clearStorage();
@@ -167,8 +187,9 @@ function updateStorage() {
   fields.forEach(field => {
     stateToStore[field.id] = document.querySelector(`#${field.id}`).value;
   });
-  localStorage.setItem(url, JSON.stringify(state));
+  localStorage.setItem(url, JSON.stringify(stateToStore));
   state = stateToStore;
+  localStorage.setItem('password', document.querySelector(`#password`).value);
 }
 
 addStylesheet();
