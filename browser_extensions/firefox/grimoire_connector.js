@@ -1,16 +1,16 @@
-let state = {}
+let state = {};
 let popEl;
+let url;
 
 function addHandlers() {
   window.addEventListener('keyup', (event) => {
     const isOpen = popEl.matches(':popover-open')
     if (event.key === "1" && isOpen === false) {
       getValues()
-      populateValues()
       popEl.showPopover()
     }
-  })
-  const inputEls = document.querySelectorAll(`input[type=text]`)
+  });
+  const inputEls = document.querySelectorAll(`input[type=text]`);
   inputEls.forEach(inputEl => {
     inputEl.addEventListener('input', updateStorage)
     inputEl.addEventListener('keydown', (event) => {
@@ -20,7 +20,7 @@ function addHandlers() {
       }
     })
   })
-  const textareaEls = document.querySelectorAll(`textarea`)
+  const textareaEls = document.querySelectorAll(`textarea`);
   textareaEls.forEach(textareaEl => {
     textareaEl.addEventListener('input', updateStorage)
   })
@@ -29,15 +29,15 @@ function addHandlers() {
   );
   submitEl.addEventListener(
     'click', sendData
-  )
+  );
 }
 
 function addPopover() {
-  popEl = document.createElement('div')
-  popEl.classList.add("grimoirePopover")
+  popEl = document.createElement('div');
+  popEl.classList.add("grimoirePopover");
   popEl.innerHTML = `
   <h2>Grimoire Capture Tool</h2>
-  <div class="inputs">
+  <div id="inputs">
     <div></div>
     <h3>Bookmark</h3>
     <label for="bookmark-title">Title</label>
@@ -50,19 +50,22 @@ function addPopover() {
     <input id="bookmark-tags" data-kind="bookmark" type="text" value="" />
     <div></div>
     <button id="submit-button">Submit</button>
-  </div>
-  `
-  popEl.setAttribute('popover', '')
-  document.body.appendChild(popEl)
+  </div>`;
+  popEl.setAttribute('popover', '');
+  document.body.appendChild(popEl);
 }
 
 function addStylesheet() {
-  const sheet = document.createElement("style")
+  const sheet = document.createElement("style");
   sheet.innerText = `
   .grimoirePopover {
+    margin-inline: auto;
     width: min(80ch, 100% - 3rem);
     background-color: green;
-    & .inputs {
+    & .error {
+      color: red;
+    }
+    & #inputs {
       display: grid;
       grid-template-columns: 4rem 1fr;
     }
@@ -79,44 +82,59 @@ function addStylesheet() {
       width: min(70ch, 100% - 5rem);
       height: 8rem;
     }
-  }
-  `
-  document.head.appendChild(sheet)
+  }`;
+  document.head.appendChild(sheet);
+}
+
+function clearStorage() {
+  localStorage.removeItem(url);
 }
 
 function getSelection() {
   const selection = document.getSelection();
   const selectedText = selection.toString();
-  return selectedText
+  return selectedText;
 }
 
 function getValues() {
-  const url = window.location
-
-  // const checkState = localStorage.getItem(url)
-  // if (checkState === null) {
-  //   state['url'] = url;
-  //   state['title'] = document.title;
-  //   state['tags'] = '';
-  //   state['notes'] = getSelection();
-  //   state['kind'] = getKind();
-  // } else {
-  //   state = JSON.parse(checkState)
-  // }
-
+  url = window.location;
+  const checkState = localStorage.getItem(url);
+  if (checkState === null) {
+    const fields = document.querySelectorAll('[data-kind]');
+    fields.forEach(field => {
+      const key = field.id.split('-')[1];
+      switch(key) {
+        case "url": 
+          state[field.id] = url;
+          break;
+        case "title":
+          state[field.id] = document.title;
+          break;
+        case "tags":
+          state[field.id] = '';
+          break;
+        case "notes":
+          state[field.id] = getSelection();
+          break;
+      }
+    });
+  } else {
+    state = JSON.parse(checkState);
+  }
+  for(let id in state) {
+    const fieldEl = document.querySelector(`#${id}`);
+    fieldEl.value = state[id];
+  }
 }
 
-function populateValues() {
-
-  // textInputs.forEach(key => {
-  //   const el = document.querySelector(`#bookmark-${key}`)
-  //   el.value = state[key]
-  // })
-  // textAreas.forEach(key => {
-  //   const el = document.querySelector(`#bookmark-${key}`)
-  //   el.value = state[key]
-  // })
-
+function showError(err) {
+  const spacer = document.createElement('div');
+  const errorEl = document.createElement('div');
+  errorEl.classList.add('error');
+  errorEl.innerHTML = `ERROR: ${err}`;
+  const wrapper = document.querySelector('#inputs');
+  wrapper.appendChild(spacer);
+  wrapper.appendChild(errorEl);
 }
 
 async function sendData() {
@@ -133,32 +151,26 @@ async function sendData() {
       },
       body: bodyData,
     });
-    console.log(response);
     const result = await response.json();
-    console.log(result);
-    // showOutput(result);
+    clearStorage();
   } catch (e) {
-    console.error(e);
+    showError(e);
   }
 }
 
 function updateStorage() {
-  console.log(".x")
-  const url = window.location
-
-  // textInputs.forEach(key => {
-  //   const el = document.querySelector(`#bookmark-${key}`)
-  //   state[key] = el.value
-  // })
-  // textAreas.forEach(key => {
-  //   const el = document.querySelector(`#bookmark-${key}`)
-  //   state[key] = el.value
-  // })
-  // localStorage.setItem(url, JSON.stringify(state))
-
+  // NOTE: Make a new object, populate it, and
+  // then feed it back into `state` to 
+  // clear any cruft.
+  const stateToStore = {};
+  const fields = document.querySelectorAll('[data-kind]');
+  fields.forEach(field => {
+    stateToStore[field.id] = document.querySelector(`#${field.id}`).value;
+  });
+  localStorage.setItem(url, JSON.stringify(state));
+  state = stateToStore;
 }
 
-addStylesheet()
-addPopover()
-addHandlers()
-
+addStylesheet();
+addPopover();
+addHandlers();
