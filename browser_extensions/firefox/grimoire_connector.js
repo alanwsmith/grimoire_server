@@ -1,7 +1,4 @@
 let state = {}
-const textInputs = ['url', 'title', 'tags']
-const textAreas = ['notes']
-const radioInputs = ['kind']
 let popEl;
 
 function addHandlers() {
@@ -13,8 +10,8 @@ function addHandlers() {
       popEl.showPopover()
     }
   })
-  textInputs.forEach(input => {
-    const inputEl = document.querySelector(`#pop-${input}`)
+  const inputEls = document.querySelectorAll(`input[type=text]`)
+  inputEls.forEach(inputEl => {
     inputEl.addEventListener('input', updateStorage)
     inputEl.addEventListener('keydown', (event) => {
       if (event.key === "Enter") {
@@ -23,9 +20,9 @@ function addHandlers() {
       }
     })
   })
-  textAreas.forEach(area => {
-    const areaEl = document.querySelector(`#pop-${area}`)
-    areaEl.addEventListener('input', updateStorage)
+  const textareaEls = document.querySelectorAll(`textarea`)
+  textareaEls.forEach(textareaEl => {
+    textareaEl.addEventListener('input', updateStorage)
   })
   const submitEl = document.querySelector(
     '#submit-button'
@@ -41,35 +38,16 @@ function addPopover() {
   popEl.innerHTML = `
   <h2>Grimoire Capture Tool</h2>
   <div class="inputs">
-    <label for="pop-title">Title</label>
-    <input id="pop-title" type="text" />
-    <label for="pop-url">URL</label>
-    <input id="pop-url" type="text" />
-    <!--
     <div></div>
-    <div>
-      <div>
-        <label for="popBookmark">Bookmark</label>
-        <input id="popBookmark" type="radio" name="pop-kind" value="bookmark" checked /> 
-      </div>
-      <div>
-        <label for="popQuote">Quote</label>
-        <input id="popQuote" type="radio" name="pop-kind" value="quote"/> 
-      </div>
-      <div>
-        <label for="popMusic">Music</label>
-        <input id="popMusic" type="radio" name="pop-kind" value="music"/> 
-      </div>
-      <div>
-        <label for="popVideo">Video</label>
-        <input id="popVideo" type="radio" name="pop-kind" value="video"/> 
-      </div>
-    </div>
-    -->
-    <label for="pop-notes">Notes</label>
-    <textarea id="pop-notes"></textarea>
-    <label for="pop-tags">Tags</label>
-    <input id="pop-tags" type="text" value="" />
+    <h3>Bookmark</h3>
+    <label for="bookmark-title">Title</label>
+    <input id="bookmark-title" data-kind="bookmark" type="text" />
+    <label for="bookmark-url">URL</label>
+    <input id="bookmark-url" data-kind="bookmark" type="text" />
+    <label for="bookmark-notes">Notes</label>
+    <textarea id="bookmark-notes" data-kind="bookmark"></textarea>
+    <label for="bookmark-tags">Tags</label>
+    <input id="bookmark-tags" data-kind="bookmark" type="text" value="" />
     <div></div>
     <button id="submit-button">Submit</button>
   </div>
@@ -97,17 +75,13 @@ function addStylesheet() {
     & h2 {
       margin: 0;
     }
-    #pop-notes{
+    #bookmark-notes{
       width: min(70ch, 100% - 5rem);
       height: 8rem;
     }
   }
   `
   document.head.appendChild(sheet)
-}
-
-function getKind() {
-  return "bookmark"
 }
 
 function getSelection() {
@@ -118,27 +92,31 @@ function getSelection() {
 
 function getValues() {
   const url = window.location
-  const checkState = localStorage.getItem(url)
-  if (checkState === null) {
-    state['url'] = url;
-    state['title'] = document.title;
-    state['tags'] = '';
-    state['notes'] = getSelection();
-    state['kind'] = getKind();
-  } else {
-    state = JSON.parse(checkState)
-  }
+
+  // const checkState = localStorage.getItem(url)
+  // if (checkState === null) {
+  //   state['url'] = url;
+  //   state['title'] = document.title;
+  //   state['tags'] = '';
+  //   state['notes'] = getSelection();
+  //   state['kind'] = getKind();
+  // } else {
+  //   state = JSON.parse(checkState)
+  // }
+
 }
 
 function populateValues() {
-  textInputs.forEach(key => {
-    const el = document.querySelector(`#pop-${key}`)
-    el.value = state[key]
-  })
-  textAreas.forEach(key => {
-    const el = document.querySelector(`#pop-${key}`)
-    el.value = state[key]
-  })
+
+  // textInputs.forEach(key => {
+  //   const el = document.querySelector(`#bookmark-${key}`)
+  //   el.value = state[key]
+  // })
+  // textAreas.forEach(key => {
+  //   const el = document.querySelector(`#bookmark-${key}`)
+  //   el.value = state[key]
+  // })
+
 }
 
 async function sendData() {
@@ -165,17 +143,19 @@ async function sendData() {
 }
 
 function updateStorage() {
-  console.log(".")
+  console.log(".x")
   const url = window.location
-  textInputs.forEach(key => {
-    const el = document.querySelector(`#pop-${key}`)
-    state[key] = el.value
-  })
-  textAreas.forEach(key => {
-    const el = document.querySelector(`#pop-${key}`)
-    state[key] = el.value
-  })
-  localStorage.setItem(url, JSON.stringify(state))
+
+  // textInputs.forEach(key => {
+  //   const el = document.querySelector(`#bookmark-${key}`)
+  //   state[key] = el.value
+  // })
+  // textAreas.forEach(key => {
+  //   const el = document.querySelector(`#bookmark-${key}`)
+  //   state[key] = el.value
+  // })
+  // localStorage.setItem(url, JSON.stringify(state))
+
 }
 
 addStylesheet()

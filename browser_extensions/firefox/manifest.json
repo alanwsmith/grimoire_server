@@ -7,7 +7,7 @@
   "content_scripts": [
     {
       "matches": ["*://*/*"],
-      "js": ["grimoire_server.js"]
+      "js": ["grimoire_connector.js"]
     }
   ]
 }
