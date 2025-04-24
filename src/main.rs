@@ -1,20 +1,24 @@
 #![allow(unused)]
 use anyhow::Result;
 use axum::{Router, extract, response, routing::get, routing::post};
+use chrono::Local;
 use minijinja::Value;
 use minijinja::syntax::SyntaxConfig;
 use minijinja::{Environment, context};
 use serde::{Deserialize, Serialize};
+use std::fs;
 use std::path::PathBuf;
 use uuid::Uuid;
 
 #[derive(Deserialize, Debug, Serialize)]
 struct MakeNoteInput {
     notes: Option<String>,
-    tags: Option<String>,
-    title: String,
+    tags: String,
+    title: Option<String>,
     url: String,
     kind: String,
+    date: Option<String>,
+    id: Option<String>,
 }
 
 #[derive(Serialize)]
@@ -38,42 +42,16 @@ async fn serve_home_page() -> response::Html<&'static str> {
 }
 
 async fn handle_make_note(
-    extract::Json(payload): extract::Json<MakeNoteInput>,
+    extract::Json(mut payload): extract::Json<MakeNoteInput>,
 ) -> response::Json<MakeNoteResponse> {
-    // dbg!(&payload);
+    let now = Local::now();
+    payload.date = Some(now.to_rfc3339_opts(chrono::SecondsFormat::Secs, true));
+    let id = generate_id();
+    payload.id = Some(id.clone());
     let _ = make_file(&payload);
-    //    let _ = generate_output(&payload);
-
-    // let grimiore_root = PathBuf::from("/Users/alan/GrimoireV2");
-
-    // let file_dir = grimiore_root.join(&id);
-    // let file_path = file_dir.join("source.neo");
-    // let _ = mkdir_p(&file_dir);
-
-    // match env.get_template("hello") {
-    //     Ok(template) => match template.render(context!(name => "World")) {
-    //         Ok(output) => {
-    //             println!("{}", output);
-    //         }
-    //         Err(e) => {
-    //             dbg!(e);
-    //             ()
-    //         }
-    //     },
-    //     Err(e) => {
-    //         dbg!(e);
-    //         ()
-    //     }
-    // }
-
-    // dbg!(&payload.notes);
-    // dbg!(&payload.tags);
-    // dbg!(&payload.title);
-    // dbg!(&payload.url);
-
     let response = MakeNoteResponse {
-        id: "asdf".to_string(),
-        url: payload.url.clone(),
+        id,
+        url: payload.url,
     };
     response::Json(response)
 }
@@ -95,7 +73,6 @@ fn generate_id() -> String {
 }
 
 fn generate_output(payload: &MakeNoteInput) -> Result<String> {
-    let id = generate_id();
     let mut env = Environment::new();
     env.set_syntax(
         SyntaxConfig::builder()
@@ -116,15 +93,22 @@ fn generate_output(payload: &MakeNoteInput) -> Result<String> {
 
 fn make_file(payload: &MakeNoteInput) -> Result<()> {
     let output = generate_output(payload)?;
-    dbg!(&output);
+    let grimiore_root = PathBuf::from("/Users/alan/GrimoireV2-Dev");
+    let file_dir = grimiore_root.join(payload.id.as_ref().unwrap());
+    let file_path = file_dir.join("source.neo");
+    write_file_with_mkdir(&file_path, &output);
     Ok(())
 }
 
-fn mkdir_p(dir: &PathBuf) -> Result<()> {
-    if dir.exists() {
-        Ok(())
-    } else {
-        std::fs::create_dir_all(dir)?;
-        Ok(())
+fn write_file_with_mkdir(path: &PathBuf, content: &str) -> Result<(), String> {
+    match path.parent() {
+        Some(parent_dir) => match fs::create_dir_all(parent_dir) {
+            Ok(_) => match fs::write(path, content) {
+                Ok(_) => Ok(()),
+                Err(e) => Err(e.to_string()),
+            },
+            Err(e) => Err(e.to_string()),
+        },
+        None => Err("Could not make directory".to_string()),
     }
 }
