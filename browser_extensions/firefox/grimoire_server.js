@@ -1,6 +1,7 @@
-let captureState = {}
+let state = {}
 const textInputs = ['url', 'title', 'tags']
 const textAreas = ['notes']
+const radioInputs = ['kind']
 let popEl;
 
 function addHandlers() {
@@ -44,24 +45,27 @@ function addPopover() {
     <input id="pop-title" type="text" />
     <label for="pop-url">URL</label>
     <input id="pop-url" type="text" />
-  <!--
-  <div>
-    <label for="popBookmark">Bookmark</label>
-    <input id="popBookmark" type="radio" name="popType" value="bookmark" checked /> 
-  </div>
-  <div>
-    <label for="popQuote">Quote</label>
-    <input id="popQuote" type="radio" name="popType" value="quote"/> 
-  </div>
-  <div>
-    <label for="popMusic">Music</label>
-    <input id="popMusic" type="radio" name="popType" value="music"/> 
-  </div>
-  <div>
-    <label for="popVideo">Video</label>
-    <input id="popVideo" type="radio" name="popType" value="video"/> 
-  </div>
-  -->
+    <!--
+    <div></div>
+    <div>
+      <div>
+        <label for="popBookmark">Bookmark</label>
+        <input id="popBookmark" type="radio" name="pop-kind" value="bookmark" checked /> 
+      </div>
+      <div>
+        <label for="popQuote">Quote</label>
+        <input id="popQuote" type="radio" name="pop-kind" value="quote"/> 
+      </div>
+      <div>
+        <label for="popMusic">Music</label>
+        <input id="popMusic" type="radio" name="pop-kind" value="music"/> 
+      </div>
+      <div>
+        <label for="popVideo">Video</label>
+        <input id="popVideo" type="radio" name="pop-kind" value="video"/> 
+      </div>
+    </div>
+    -->
     <label for="pop-notes">Notes</label>
     <textarea id="pop-notes"></textarea>
     <label for="pop-tags">Tags</label>
@@ -102,6 +106,10 @@ function addStylesheet() {
   document.head.appendChild(sheet)
 }
 
+function getKind() {
+  return "bookmark"
+}
+
 function getSelection() {
   const selection = document.getSelection();
   const selectedText = selection.toString();
@@ -110,31 +118,33 @@ function getSelection() {
 
 function getValues() {
   const url = window.location
-  const storedState = localStorage.getItem(url)
-  if (storedState === null) {
-    captureState['url'] = url;
-    captureState['title'] = document.title;
-    captureState['tags'] = '';
-    captureState['notes'] = getSelection();
+  const checkState = localStorage.getItem(url)
+  if (checkState === null) {
+    state['url'] = url;
+    state['title'] = document.title;
+    state['tags'] = '';
+    state['notes'] = getSelection();
+    state['kind'] = getKind();
   } else {
-    captureState = JSON.parse(storedState)
+    state = JSON.parse(checkState)
   }
 }
 
 function populateValues() {
   textInputs.forEach(key => {
     const el = document.querySelector(`#pop-${key}`)
-    el.value = captureState[key]
+    el.value = state[key]
   })
   textAreas.forEach(key => {
     const el = document.querySelector(`#pop-${key}`)
-    el.value = captureState[key]
+    el.value = state[key]
   })
 }
 
 async function sendData() {
   const postToUrl = "http://localhost:4545/api/make-note";
-  const bodyData = JSON.stringify(captureState);
+  const bodyData = JSON.stringify(state);
+  console.log(bodyData);
   try {
     const response = await fetch(
       postToUrl, {
@@ -147,6 +157,7 @@ async function sendData() {
     });
     console.log(response);
     const result = await response.json();
+    console.log(result);
     // showOutput(result);
   } catch (e) {
     console.error(e);
@@ -156,17 +167,15 @@ async function sendData() {
 function updateStorage() {
   console.log(".")
   const url = window.location
-  const stateToStore = {}
   textInputs.forEach(key => {
     const el = document.querySelector(`#pop-${key}`)
-    stateToStore[key] = el.value
+    state[key] = el.value
   })
   textAreas.forEach(key => {
     const el = document.querySelector(`#pop-${key}`)
-    stateToStore[key] = el.value
-    console.log(el.value)
+    state[key] = el.value
   })
-  localStorage.setItem(url, JSON.stringify(stateToStore))
+  localStorage.setItem(url, JSON.stringify(state))
 }
 
 addStylesheet()
