@@ -168,7 +168,6 @@ async function sendData() {
     const key = field.id.split('-')[1];
     payload[key] = field.value;
   });
-  console.log(payload);
   try {
     const response = await fetch(
       postUrl, {
@@ -177,7 +176,7 @@ async function sendData() {
         'Accept': 'application/json',
         'Content-Type': 'application/json'
       },
-      body: payload,
+      body: JSON.stringify(payload),
     });
     const result = await response.json();
     clearStorage();

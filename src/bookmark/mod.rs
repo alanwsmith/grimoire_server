@@ -20,6 +20,7 @@ pub struct Bookmark {
     pub tags: Option<String>,
     pub title: Option<String>,
     pub url: String,
+    pub password: String,
 }
 
 pub async fn make_bookmark(
@@ -27,6 +28,7 @@ pub async fn make_bookmark(
 ) -> response::Json<FileResponse> {
     payload.id = generate_id();
     payload.date = get_date();
+    dbg!(&payload);
     let response = FileResponse {
         id: payload.id,
         url: Some(payload.url),
