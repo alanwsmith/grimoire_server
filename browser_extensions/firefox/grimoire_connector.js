@@ -2,7 +2,6 @@ let state = {};
 let popEl;
 let url;
 let apiRoot = "http://localhost:4545/api";
-// TODO: Use tabs to make different kinds.
 let kind = "bookmark";
 
 function addHandlers() {
@@ -98,6 +97,15 @@ function clearStorage() {
   localStorage.removeItem(url);
 }
 
+function getDescription() {
+  const description = document.querySelector('meta[name="description"]').content;
+  if (description !== null) {
+    return `${description}\n\n`;
+  } else {
+    return "";
+  }
+}
+
 function getSelection() {
   const selection = document.getSelection();
   const selectedText = selection.toString();
@@ -106,6 +114,7 @@ function getSelection() {
 
 function getValues() {
   url = window.location;
+  clearStorage();
   const checkState = localStorage.getItem(url);
   if (checkState === null) {
     const fields = document.querySelectorAll('[data-kind]');
@@ -122,7 +131,7 @@ function getValues() {
           state[field.id] = '';
           break;
         case "notes":
-          state[field.id] = getSelection();
+          state[field.id] = `${getDescription()}${getSelection()}`;
           break;
       }
     });
@@ -137,7 +146,6 @@ function getValues() {
   if (password !== null) {
     document.querySelector(`#password`).value = password;
   }
-
 }
 
 function showError(err) {
