@@ -27,7 +27,7 @@ pub fn generate_id() -> Option<String> {
     Some(id)
 }
 
-fn generate_output(payload: &FileType) -> Result<String> {
+pub fn generate_output(payload: &FileType) -> Result<String> {
     let mut env = Environment::new();
     env.set_syntax(
         SyntaxConfig::builder()
@@ -37,19 +37,15 @@ fn generate_output(payload: &FileType) -> Result<String> {
             .build()
             .unwrap(),
     );
-    let template = match payload {
-        FileType::Bookmark(template) => template,
+    let data = match payload {
+        FileType::Bookmark(b) => b,
     };
-
-    // env.add_template("bookmark", include_str!("templates/bookmark.neoj"))
-    //     .unwrap();
-    // let skeleton = env.get_template("bookmark").unwrap();
-    // let output = skeleton
-    //     .render(context!(payload => Value::from_serialize(payload)))
-    //     .unwrap();
-    // Ok(output)
-
-    Ok("todo".to_string())
+    env.add_template("note", data.template.as_ref().unwrap());
+    let skeleton = env.get_template("note").unwrap();
+    let output = skeleton
+        .render(context!(data => Value::from_serialize(data)))
+        .unwrap();
+    Ok(output)
 }
 
 pub fn get_date() -> Option<String> {

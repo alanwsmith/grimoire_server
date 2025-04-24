@@ -1,5 +1,6 @@
 #![allow(unused)]
 use crate::file_response::FileResponse;
+use crate::file_type::FileType;
 use crate::helpers::*;
 use anyhow::Result;
 use axum::{Router, extract, response, routing::get, routing::post};
@@ -12,23 +13,30 @@ use std::fs;
 use std::path::PathBuf;
 use uuid::Uuid;
 
-#[derive(Deserialize, Debug, Serialize)]
+#[derive(Debug, Deserialize, Clone, Serialize)]
 pub struct Bookmark {
     pub date: Option<String>,
     pub id: Option<String>,
     pub notes: Option<String>,
+    pub password: String,
     pub tags: Option<String>,
+    pub template: Option<String>,
     pub title: Option<String>,
     pub url: String,
-    pub password: String,
 }
 
 pub async fn make_bookmark(
     extract::Json(mut payload): extract::Json<Bookmark>,
 ) -> response::Json<FileResponse> {
+    dbg!(&payload);
     payload.id = generate_id();
     payload.date = get_date();
-    dbg!(&payload);
+    payload.template = Some(include_str!("template.neoj").to_string());
+    let enum_payload = FileType::Bookmark(payload.clone());
+    let output = generate_output(&enum_payload);
+    if let Ok(text) = output {
+        dbg!(text);
+    }
     let response = FileResponse {
         id: payload.id,
         url: Some(payload.url),
