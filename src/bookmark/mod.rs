@@ -11,6 +11,7 @@ use minijinja::{Environment, context};
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::PathBuf;
+use textwrap::wrap;
 use uuid::Uuid;
 
 #[derive(Debug, Deserialize, Clone, Serialize)]
@@ -31,6 +32,7 @@ pub async fn make_bookmark(
     payload.id = generate_id();
     payload.date = get_date();
     payload.template = Some(include_str!("template.neoj").to_string());
+    payload.notes = Some(wrap(payload.notes.as_ref().unwrap(), 46).join("\n"));
     let enum_payload = FileType::Bookmark(payload.clone());
     let output = generate_output(&enum_payload);
     if let Ok(text) = output {
