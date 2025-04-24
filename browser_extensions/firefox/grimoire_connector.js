@@ -4,6 +4,9 @@ let url;
 let apiRoot = "http://localhost:4545/api";
 let kind = "bookmark";
 
+// TODO: add other notes types
+// TODO: isolate styles
+
 function addHandlers() {
   window.addEventListener('keyup', (event) => {
     const isOpen = popEl.matches(':popover-open')
