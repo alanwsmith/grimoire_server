@@ -54,7 +54,7 @@ pub fn get_date() -> Option<String> {
 }
 
 pub fn get_output_root() -> PathBuf {
-    PathBuf::from("/Users/alan/GrimoireV2-Dev")
+    PathBuf::from("/Users/alan/GrimoireV2-Dev/notes")
 }
 
 pub fn write_file_with_mkdir(path: &PathBuf, content: &str) -> Result<(), String> {
