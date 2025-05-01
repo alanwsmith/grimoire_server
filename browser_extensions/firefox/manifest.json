@@ -1,0 +1,13 @@
+{
+  "manifest_version": 2,
+  "name": "Grimoire Connection",
+  "version": "1.0",
+  "description": "Connects to my personal book of magic",
+  "permissions": ["http://localhost/"],
+  "content_scripts": [
+    {
+      "matches": ["*://*/*"],
+      "js": ["grimoire_connector.js"]
+    }
+  ]
+}

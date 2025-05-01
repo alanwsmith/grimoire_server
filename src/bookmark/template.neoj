@@ -1,0 +1,16 @@
+-- bookmark
+-- title: [@ data.title @]
+-- url: [@ data.url @]
+
+[@ data.notes @]
+
+
+-- metadata
+-- created: [@ data.date @]
+-- updated: [@ data.date @]
+-- id: [@ data.id @]
+-- type: bookmark 
+-- status: published 
+[! for tag in data.tags !][@ tag @]
+[! endfor !]
+

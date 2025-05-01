@@ -4,3 +4,15 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+anyhow = "1.0.98"
+axum = { version = "0.8.0", features = ["json"] }
+chrono = "0.4.40"
+minijinja = { version = "2.9.0", features = ["custom_syntax"] }
+serde = { version = "1.0.219", features = ["derive"] }
+#axum-embed = "0.1.0"
+#rust-embed = "8.7.0"
+textwrap = "0.16.2"
+tokio = { version = "1.44.2", features = ["macros", "rt-multi-thread"] }
+uuid = { version = "1.16.0", features = ["v4"] }
+# tower-http = { version = "0.6.2", features = ["fs"] }
+
